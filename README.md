@@ -3,7 +3,7 @@
 > AI-powered competitive intelligence and campaign feedback loop for KeenFox's B2B SaaS marketing team.
 
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org/)
-[![gemini](https://img.shields.io/badge/LLM-Claude%20claude-opus-4-5-orange)](https://gemini.com/)
+[![Gemini](https://img.shields.io/badge/LLM-Gemini%202.5%20Flash-blue)](https://aistudio.google.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue)]()
 
 ---
@@ -13,7 +13,7 @@
 This system replaces manual competitive research with an automated, AI-powered pipeline that:
 
 1. Aggregates signals across 5 competitors (Notion, Asana, ClickUp, Monday.com, Microsoft 365 Copilot) from 5 data sources (websites, G2 reviews, Reddit, changelogs, LinkedIn)
-2. Extracts strategic insights using Claude claude-opus-4-5 — not just summaries, but analysis of what each signal means for KeenFox's positioning
+2. Extracts strategic insights using Gemini — not just summaries, but analysis of what each signal means for KeenFox's positioning
 3. Generates campaign recommendations across messaging, channel strategy, GTM refinements, copy suggestions, and battle cards
 4. Tracks changes over time with a diff mode that highlights what's new since the last run
 5. Answers questions via a natural language query interface against the competitive dataset
@@ -25,7 +25,7 @@ This system replaces manual competitive research with an automated, AI-powered p
  Prerequisites
 
 - Node.js 18+
-- An [gemini API key](https://console.gemini.com/)
+- A [Google Gemini API key](https://aistudio.google.com/)
 
  Installation
 
@@ -39,7 +39,7 @@ npm install
 
  Configure environment
 cp .env.example .env
- Edit .env and add your gemini_API_KEY
+ Edit .env and add your GEMINI_API_KEY
 ```
 
  Run the Pipeline
@@ -97,15 +97,15 @@ Phase 1: COLLECTION (Parallel across 5 sources)
   Changelog         → Direct scraper
   LinkedIn          → Google search proxy
 
-Phase 2: ANALYSIS (Claude claude-opus-4-5, per competitor)
+Phase 2: ANALYSIS (Gemini 2.5 Flash, per competitor)
   Raw signals → Structured intelligence JSON
   Fields: messaging, pricing, sentiment, gaps, threat level
 
-Phase 3: SYNTHESIS (Claude claude-opus-4-5, cross-competitor)
+Phase 3: SYNTHESIS (Google Gemini gemini-2.5-flash, cross-competitor)
   All analyses → Campaign recommendations
   Output: copy, channels, GTM, battle cards
 
-Phase 4: DIFF (Optional, Claude claude-opus-4-5)
+Phase 4: DIFF (Optional, Gemini 2.5 Flash)
   Previous report + Current → What changed, urgency rating
 
 Phase 5: REPORTING
