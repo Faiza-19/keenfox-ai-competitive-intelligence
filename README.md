@@ -1,83 +1,83 @@
-# 🦊 KeenFox Competitive Intelligence System
+🦊 KeenFox Competitive Intelligence System
 
 > AI-powered competitive intelligence and campaign feedback loop for KeenFox's B2B SaaS marketing team.
 
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org/)
-[![Anthropic](https://img.shields.io/badge/LLM-Claude%20claude-opus-4-5-orange)](https://anthropic.com/)
-[![License](https://img.shields.io/badge/License-MIT-blue)](#)
+[![gemini](https://img.shields.io/badge/LLM-Claude%20claude-opus-4-5-orange)](https://gemini.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue)]()
 
 ---
 
-## What It Does
+ What It Does
 
 This system replaces manual competitive research with an automated, AI-powered pipeline that:
 
-1. **Aggregates signals** across 5 competitors (Notion, Asana, ClickUp, Monday.com, Microsoft 365 Copilot) from 5 data sources (websites, G2 reviews, Reddit, changelogs, LinkedIn)
-2. **Extracts strategic insights** using Claude claude-opus-4-5 — not just summaries, but analysis of what each signal means for KeenFox's positioning
-3. **Generates campaign recommendations** across messaging, channel strategy, GTM refinements, copy suggestions, and battle cards
-4. **Tracks changes over time** with a diff mode that highlights what's new since the last run
-5. **Answers questions** via a natural language query interface against the competitive dataset
+1. Aggregates signals across 5 competitors (Notion, Asana, ClickUp, Monday.com, Microsoft 365 Copilot) from 5 data sources (websites, G2 reviews, Reddit, changelogs, LinkedIn)
+2. Extracts strategic insights using Claude claude-opus-4-5 — not just summaries, but analysis of what each signal means for KeenFox's positioning
+3. Generates campaign recommendations across messaging, channel strategy, GTM refinements, copy suggestions, and battle cards
+4. Tracks changes over time with a diff mode that highlights what's new since the last run
+5. Answers questions via a natural language query interface against the competitive dataset
 
 ---
 
-## Quick Start
+ Quick Start
 
-### Prerequisites
+ Prerequisites
 
 - Node.js 18+
-- An [Anthropic API key](https://console.anthropic.com/)
+- An [gemini API key](https://console.gemini.com/)
 
-### Installation
+ Installation
 
 ```bash
-# Clone the repo
+ Clone the repo
 git clone https://github.com/your-org/keenfox-ci
 cd keenfox-ci
 
-# Install dependencies
+ Install dependencies
 npm install
 
-# Configure environment
+ Configure environment
 cp .env.example .env
-# Edit .env and add your ANTHROPIC_API_KEY
+ Edit .env and add your gemini_API_KEY
 ```
 
-### Run the Pipeline
+ Run the Pipeline
 
 ```bash
-# Full pipeline run (scrape + analyze + recommend)
+ Full pipeline run (scrape + analyze + recommend)
 npm start run
 
-# Run for specific competitors only
+ Run for specific competitors only
 npm start run --competitors notion,asana,clickup
 
-# Use cached scrape data (faster, no re-scraping)
+ Use cached scrape data (faster, no re-scraping)
 npm start run --cache
 
-# Run incremental update
+ Run incremental update
 npm start update
 ```
 
-### Query the Data
+ Query the Data
 
 ```bash
-# Interactive query mode
+ Interactive query mode
 npm start query
 
-# Single question
+ Single question
 npm start query "What are customers complaining about in Asana reviews?"
 npm start query "Where is KeenFox most vulnerable to Notion?"
 npm start query "Which competitor has the highest churn signals?"
 ```
 
-### Launch the Dashboard
+ Launch the Dashboard
 
 ```bash
 npm run dashboard
-# Opens at http://localhost:3000
+ Opens at http://localhost:3000
 ```
 
-### Run Tests
+ Run Tests
 
 ```bash
 npm test
@@ -85,7 +85,7 @@ npm test
 
 ---
 
-## System Architecture
+ System Architecture
 
 ```
 Pipeline: Collect → Analyze → Recommend → Diff → Report
@@ -116,7 +116,7 @@ See [`design_doc.md`](./design_doc.md) for full architecture documentation.
 
 ---
 
-## Output
+ Output
 
 Each run generates:
 
@@ -124,15 +124,15 @@ Each run generates:
 outputs/
 ├── reports/
 │   └── run_YYYYMMDD_HHMMSS_XXXX/
-│       ├── report.json     # Full structured data
-│       └── report.md       # Human-readable markdown
+│       ├── report.json      Full structured data
+│       └── report.md        Human-readable markdown
 ├── state/
-│   ├── competitor_raw_*.json   # Cached scrape data (24h TTL)
-│   └── *.json                  # Pipeline state
-└── sample_report.md            # Example output included in repo
+│   ├── competitor_raw_*.json    Cached scrape data (24h TTL)
+│   └── *.json                   Pipeline state
+└── sample_report.md             Example output included in repo
 ```
 
-### Sample Output Structure (JSON)
+ Sample Output Structure (JSON)
 
 ```json
 {
@@ -162,7 +162,7 @@ outputs/
 
 ---
 
-## CLI Reference
+ CLI Reference
 
 ```
 Commands:
@@ -182,24 +182,24 @@ Options for 'run':
 
 ---
 
-## Dashboard Features
+ Dashboard Features
 
 The web dashboard (`npm run dashboard`) provides:
 
 | Page | Description |
 |------|-------------|
-| **Overview** | Threat matrix, stats, top gaps |
-| **Competitors** | Per-competitor drill-down with all intelligence fields |
-| **Signals** | Filterable list of all detected signals |
-| **Campaign Recs** | GTM priorities and channel strategy |
-| **Copy Suggestions** | AI-generated copy for all channels |
-| **Battle Cards** | Sales talk tracks per competitor |
-| **NL Query** | Chat with your competitive data |
-| **What Changed** | Diff analysis vs previous run |
+| Overview | Threat matrix, stats, top gaps |
+| Competitors | Per-competitor drill-down with all intelligence fields |
+| Signals | Filterable list of all detected signals |
+| Campaign Recs | GTM priorities and channel strategy |
+| Copy Suggestions | AI-generated copy for all channels |
+| Battle Cards | Sales talk tracks per competitor |
+| NL Query | Chat with your competitive data |
+| What Changed | Diff analysis vs previous run |
 
 ---
 
-## Adding a New Competitor
+ Adding a New Competitor
 
 1. Add competitor config to `src/config.js`:
 
@@ -225,60 +225,60 @@ export const COMPETITORS = {
 
 ---
 
-## Guardrails & Error Handling
+ Guardrails & Error Handling
 
 The system is designed for resilience:
 
-- **Scraping failures**: Each data source fails independently. Partial data produces partial insights with flagged confidence levels.
-- **LLM failures**: Retry with exponential backoff (3 attempts). Falls back to a structured "unavailable" response rather than crashing.
-- **Rate limiting**: Respects `Retry-After` headers from both web servers and the Anthropic API.
-- **JSON parsing**: Multiple fallback strategies (strip markdown fences, extract from mixed text).
-- **Input sanitization**: All scraped content is sanitized before entering LLM prompts (prevents prompt injection, enforces length limits).
-- **Schema validation**: LLM output is validated; missing fields are filled with defaults rather than throwing.
+- Scraping failures: Each data source fails independently. Partial data produces partial insights with flagged confidence levels.
+- LLM failures: Retry with exponential backoff (3 attempts). Falls back to a structured "unavailable" response rather than crashing.
+- Rate limiting: Respects `Retry-After` headers from both web servers and the gemini API.
+- JSON parsing: Multiple fallback strategies (strip markdown fences, extract from mixed text).
+- Input sanitization: All scraped content is sanitized before entering LLM prompts (prevents prompt injection, enforces length limits).
+- Schema validation: LLM output is validated; missing fields are filled with defaults rather than throwing.
 
 See [`src/utils/errors.js`](./src/utils/errors.js) for the full error handling implementation.
 
 ---
 
-## Known Limitations
+ Known Limitations
 
-- **G2/Capterra**: Full review data requires API authentication. The scraper gets partial data from public pages. For production, use the official G2 API or a data vendor.
-- **LinkedIn**: Blocks scraping. Current approach uses Google search proxy for signals. LinkedIn's Marketing API would improve this.
-- **JavaScript-rendered pages**: Some changelogs are SPAs. Add Playwright/Puppeteer for full JS rendering support.
-- **Storage**: Local JSON files. Production should use a proper database (PostgreSQL).
-- **Scheduling**: No built-in cron. Use `node-cron` or a process manager for automated runs.
+- G2/Capterra: Full review data requires API authentication. The scraper gets partial data from public pages. For production, use the official G2 API or a data vendor.
+- LinkedIn: Blocks scraping. Current approach uses Google search proxy for signals. LinkedIn's Marketing API would improve this.
+- JavaScript-rendered pages: Some changelogs are SPAs. Add Playwright/Puppeteer for full JS rendering support.
+- Storage: Local JSON files. Production should use a proper database (PostgreSQL).
+- Scheduling: No built-in cron. Use `node-cron` or a process manager for automated runs.
 
 See [`design_doc.md`](./design_doc.md) for the full limitations analysis and roadmap.
 
 ---
 
-## Project Structure
+ Project Structure
 
 ```
 keenfox-ci/
 ├── src/
-│   ├── index.js              # CLI entry point
-│   ├── pipeline.js           # Main orchestrator
-│   ├── config.js             # Competitor configs, LLM settings
+│   ├── index.js               CLI entry point
+│   ├── pipeline.js            Main orchestrator
+│   ├── config.js              Competitor configs, LLM settings
 │   ├── agents/
-│   │   ├── scraper.js        # Web scraping (5 sources)
-│   │   ├── analyzer.js       # LLM analysis (Anthropic SDK)
-│   │   └── reporter.js       # Report generation
+│   │   ├── scraper.js         Web scraping (5 sources)
+│   │   ├── analyzer.js        LLM analysis (gemini SDK)
+│   │   └── reporter.js        Report generation
 │   ├── prompts/
-│   │   └── intelligence.js   # All LLM prompts
+│   │   └── intelligence.js    All LLM prompts
 │   └── utils/
-│       ├── logger.js         # Structured logging
-│       ├── errors.js         # Custom errors, retry logic
-│       └── storage.js        # File-based persistence
+│       ├── logger.js          Structured logging
+│       ├── errors.js          Custom errors, retry logic
+│       └── storage.js         File-based persistence
 ├── dashboard/
-│   ├── server.js             # Express API server
+│   ├── server.js              Express API server
 │   └── public/
-│       └── index.html        # Single-page dashboard
+│       └── index.html         Single-page dashboard
 ├── tests/
-│   └── test_pipeline.js      # Test suite
+│   └── test_pipeline.js       Test suite
 ├── outputs/
-│   └── sample_report.md      # Example output
-├── design_doc.md             # Full technical design document
+│   └── sample_report.md       Example output
+├── design_doc.md              Full technical design document
 ├── package.json
 ├── .env.example
 └── README.md
@@ -286,6 +286,6 @@ keenfox-ci/
 
 ---
 
-## License
+ License
 
 MIT
