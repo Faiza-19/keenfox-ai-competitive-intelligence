@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KeenFox · Competitive Intelligence Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fox: #FF6B35;
+    --fox-dark: #E55A24;
+    --bg: #0A0B0D;
+    --surface: #12141A;
+    --surface2: #1A1D26;
+    --border: #252A38;
+    --text: #E8EAF0;
+    --text-muted: #6B7280;
+    --text-dim: #4B5563;
+    --green: #22C55E;
+    --yellow: #F59E0B;
+    --red: #EF4444;
+    --blue: #3B82F6;
+    --purple: #8B5CF6;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Layout */
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  
+  /* Sidebar */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .logo-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+  .logo-name {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--fox);
+    letter-spacing: -0.5px;
+  }
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    letter-spacing: 0.5px;
+  }
+
+  .nav-section { padding: 4px 12px; margin-bottom: 4px; }
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 8px 8px 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 13px;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(255, 107, 53, 0.12); color: var(--fox); border-color: rgba(255, 107, 53, 0.2); }
+  .nav-icon { font-size: 14px; width: 18px; text-align: center; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .run-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--fox);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .run-btn:hover { background: var(--fox-dark); }
+  .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Main content */
+  .main { overflow-y: auto; }
+  .page { display: none; padding: 32px; }
+  .page.active { display: block; }
+
+  /* Page header */
+  .page-header { margin-bottom: 32px; }
+  .page-title {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .page-sub { color: var(--text-muted); font-size: 13px; }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card-title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* Grid layouts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+  /* Stat cards */
+  .stat-card { padding: 16px 20px; }
+  .stat-value {
+    font-family: var(--display);
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 12px; color: var(--text-muted); }
+  .stat-card.orange .stat-value { color: var(--fox); }
+  .stat-card.green .stat-value { color: var(--green); }
+  .stat-card.yellow .stat-value { color: var(--yellow); }
+  .stat-card.red .stat-value { color: var(--red); }
+
+  /* Competitor cards */
+  .competitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .comp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.15s;
+  }
+  .comp-card:hover { border-color: rgba(255, 107, 53, 0.3); }
+  .comp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .comp-name { font-family: var(--display); font-size: 16px; font-weight: 700; }
+  .comp-category { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
+  
+  .threat-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: var(--mono);
+  }
+  .threat-High { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .threat-Medium { background: rgba(245,158,11,0.15); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+  .threat-Low { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .threat-Unknown { background: rgba(107,114,128,0.15); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .comp-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+  .comp-row:last-child { border-bottom: none; }
+  .comp-row-label { color: var(--text-muted); }
+  .comp-row-value { color: var(--text); font-weight: 500; text-align: right; max-width: 200px; }
+
+  .sentiment-Positive { color: var(--green); }
+  .sentiment-Mixed { color: var(--yellow); }
+  .sentiment-Negative { color: var(--red); }
+  .sentiment-Unknown { color: var(--text-muted); }
+
+  /* Signals */
+  .signal-item {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--border);
+    transition: border-color 0.15s;
+  }
+  .signal-item:hover { border-color: rgba(255,107,53,0.4); }
+  .signal-type {
+    font-size: 10px;
+    font-family: var(--mono);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--fox);
+    margin-bottom: 4px;
+  }
+  .signal-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .signal-detail { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .signal-meta { display: flex; gap: 8px; margin-top: 6px; }
+  .signal-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    background: var(--surface2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .conf-High { color: var(--green) !important; border-color: rgba(34,197,94,0.3) !important; }
+  .conf-Medium { color: var(--yellow) !important; border-color: rgba(245,158,11,0.3) !important; }
+  .conf-Low { color: var(--text-dim) !important; }
+
+  /* Recommendations */
+  .rec-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--fox);
+  }
+  .rec-priority {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fox);
+    font-weight: 600;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+  .rec-title { font-family: var(--display); font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .rec-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .rec-row { margin-top: 8px; font-size: 12px; }
+  .rec-row strong { color: var(--text); }
+  .timeline-badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 10px;
+    background: rgba(59,130,246,0.12);
+    color: var(--blue);
+    border-radius: 4px;
+    border: 1px solid rgba(59,130,246,0.25);
+    font-family: var(--mono);
+  }
+
+  /* Copy suggestions */
+  .copy-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .copy-label { font-size: 11px; color: var(--fox); font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .copy-text {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    background: rgba(0,0,0,0.3);
+    padding: 10px 14px;
+    border-radius: 6px;
+    border-left: 2px solid var(--fox);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .copy-rationale { font-size: 12px; color: var(--text-muted); }
+
+  /* Battle cards */
+  .battle-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .battle-vs {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--fox);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .battle-row { margin-bottom: 8px; }
+  .battle-row-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+  .battle-row-value { font-size: 13px; color: var(--text); }
+  .talk-track {
+    font-style: italic;
+    color: var(--text-muted);
+    border-left: 2px solid var(--fox);
+    padding-left: 10px;
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* Query interface */
+  .query-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .query-input-row { display: flex; gap: 12px; }
+  .query-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .query-input:focus { border-color: var(--fox); }
+  .query-btn {
+    padding: 12px 20px;
+    background: var(--fox);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: var(--display);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .query-btn:hover { background: var(--fox-dark); }
+  .query-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .query-result {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: var(--text);
+  }
+  .suggested-queries { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .suggestion {
+    padding: 5px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .suggestion:hover { border-color: var(--fox); color: var(--fox); }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-title { font-family: var(--display); font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+
+  /* Status bar */
+  .status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 240px;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 8px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    z-index: 100;
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .status-dot.loading { background: var(--yellow); animation: pulse 1s infinite; }
+  
+  /* Loading */
+  .loading-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(10,11,13,0.85);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    display: none;
+  }
+  .loading-overlay.visible { display: flex; }
+  .loading-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 40px;
+    text-align: center;
+  }
+  .loading-fox { font-size: 48px; animation: bounce 1s infinite; }
+  .loading-text { font-family: var(--display); font-size: 16px; font-weight: 700; margin-top: 12px; }
+  .loading-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    z-index: 2000;
+    display: none;
+    max-width: 320px;
+  }
+  .toast.visible { display: block; }
+  .toast.success { border-color: rgba(34,197,94,0.4); }
+  .toast.error { border-color: rgba(239,68,68,0.4); }
+
+  /* Diff badge */
+  .diff-card {
+    background: linear-gradient(135deg, rgba(255,107,53,0.08), transparent);
+    border: 1px solid rgba(255,107,53,0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .diff-title { font-family: var(--display); font-size: 16px; font-weight: 700; color: var(--fox); margin-bottom: 12px; }
+
+  /* Tab component */
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+  .tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--fox); border-bottom-color: var(--fox); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="loading-fox">🦊</div>
+    <div class="loading-text">Analyzing Competitors...</div>
+    <div class="loading-sub" id="loadingMsg">Gathering intelligence signals</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-icon">🦊</span>
+      <div class="logo-name">KeenFox CI</div>
+      <div class="logo-sub">Competitive Intelligence</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" onclick="showPage('overview')">
+        <span class="nav-icon">◉</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('competitors')">
+        <span class="nav-icon">⬡</span> Competitors
+      </div>
+      <div class="nav-item" onclick="showPage('signals')">
+        <span class="nav-icon">◈</span> Signals
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Strategy</div>
+      <div class="nav-item" onclick="showPage('campaign')">
+        <span class="nav-icon">◆</span> Campaign Recs
+      </div>
+      <div class="nav-item" onclick="showPage('copy')">
+        <span class="nav-icon">✦</span> Copy Suggestions
+      </div>
+      <div class="nav-item" onclick="showPage('battlecards')">
+        <span class="nav-icon">⚔</span> Battle Cards
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Intelligence</div>
+      <div class="nav-item" onclick="showPage('query')">
+        <span class="nav-icon">◎</span> NL Query
+      </div>
+      <div class="nav-item" onclick="showPage('diff')">
+        <span class="nav-icon">△</span> What Changed
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="run-btn" id="runBtn" onclick="triggerRun()">
+        ⟳ Run Pipeline
+      </button>
+      <div style="font-size:11px; color:var(--text-dim); margin-top:8px; text-align:center; font-family:var(--mono)" id="lastRunText">No report loaded</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Overview Page -->
+    <div class="page active" id="page-overview">
+      <div class="page-header">
+        <div class="page-title">Intelligence Overview</div>
+        <div class="page-sub" id="reportMeta">Loading latest report...</div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:24px" id="statsGrid">
+        <div class="card stat-card orange"><div class="stat-value" id="stat-competitors">—</div><div class="stat-label">Competitors Tracked</div></div>
+        <div class="card stat-card red"><div class="stat-value" id="stat-threats">—</div><div class="stat-label">High Threats</div></div>
+        <div class="card stat-card yellow"><div class="stat-value" id="stat-signals">—</div><div class="stat-label">Signals Detected</div></div>
+        <div class="card stat-card green"><div class="stat-value" id="stat-gaps">—</div><div class="stat-label">Exploitable Gaps</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Threat Matrix</div>
+          <div id="threatMatrix"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Top Exploitable Gaps</div>
+          <div id="topGaps"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Competitors Page -->
+    <div class="page" id="page-competitors">
+      <div class="page-header">
+        <div class="page-title">Competitor Analysis</div>
+        <div class="page-sub">Detailed intelligence per competitor</div>
+      </div>
+      <div class="competitor-grid" id="competitorGrid"></div>
+    </div>
+
+    <!-- Signals Page -->
+    <div class="page" id="page-signals">
+      <div class="page-header">
+        <div class="page-title">Intelligence Signals</div>
+        <div class="page-sub">All detected signals across competitors</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="signalFilters"></div>
+      <div id="signalsList"></div>
+    </div>
+
+    <!-- Campaign Page -->
+    <div class="page" id="page-campaign">
+      <div class="page-header">
+        <div class="page-title">Campaign Recommendations</div>
+        <div class="page-sub">AI-generated GTM strategy refinements</div>
+      </div>
+      <div id="gtmRecs"></div>
+    </div>
+
+    <!-- Copy Page -->
+    <div class="page" id="page-copy">
+      <div class="page-header">
+        <div class="page-title">Copy Suggestions</div>
+        <div class="page-sub">AI-generated messaging for each channel</div>
+      </div>
+      <div id="copySuggestions"></div>
+    </div>
+
+    <!-- Battle Cards Page -->
+    <div class="page" id="page-battlecards">
+      <div class="page-header">
+        <div class="page-title">Battle Cards</div>
+        <div class="page-sub">Competitor-specific sales talk tracks</div>
+      </div>
+      <div class="grid-2" id="battleCardsGrid"></div>
+    </div>
+
+    <!-- Query Page -->
+    <div class="page" id="page-query">
+      <div class="page-header">
+        <div class="page-title">Natural Language Query</div>
+        <div class="page-sub">Ask anything about the competitive landscape</div>
+      </div>
+      <div class="query-box">
+        <div class="query-input-row">
+          <input class="query-input" id="queryInput" placeholder="e.g. What are customers complaining about in Asana reviews?" onkeydown="if(event.key==='Enter')runQuery()">
+          <button class="query-btn" id="queryBtn" onclick="runQuery()">Ask AI</button>
+        </div>
+        <div class="suggested-queries" id="suggestedQueries"></div>
+        <div class="query-result" id="queryResult" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Diff Page -->
+    <div class="page" id="page-diff">
+      <div class="page-header">
+        <div class="page-title">What Changed</div>
+        <div class="page-sub">Signals and shifts since the last run</div>
+      </div>
+      <div id="diffContent"></div>
+    </div>
+
+  </main>
+</div>
+
+<div class="status-bar">
+  <div class="status-dot" id="statusDot"></div>
+  <span id="statusText">Ready</span>
+  <span style="margin-left:auto;color:var(--text-dim)">KeenFox CI v1.0</span>
+</div>
+
+<script>
+let reportData = null;
+
+const SUGGESTED_QUERIES = [
+  "What are customers complaining about in Notion?",
+  "Where is KeenFox most vulnerable to Asana?",
+  "What AI features has ClickUp launched recently?",
+  "Which competitor has the worst churn signals?",
+  "Where should KeenFox focus messaging first?",
+];
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${id}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes(id)) n.classList.add('active');
+  });
+}
+
+// ─── Load Report ──────────────────────────────────────────────────────────────
+async function loadReport() {
+  setStatus('loading', 'Loading report...');
+  try {
+    const res = await fetch('/api/report/latest');
+    if (!res.ok) {
+      const err = await res.json();
+      setStatus('ok', 'No report — click Run Pipeline');
+      showEmptyState();
+      return;
+    }
+    reportData = await res.json();
+    renderAll();
+    setStatus('ok', `Report: ${reportData.run_id}`);
+    document.getElementById('lastRunText').textContent = formatDate(reportData.generated_at);
+  } catch (e) {
+    setStatus('error', 'Failed to load report');
+    console.error(e);
+  }
+}
+
+function showEmptyState() {
+  document.getElementById('reportMeta').textContent = 'No report found — run the pipeline to generate intelligence.';
+}
+
+// ─── Render All ───────────────────────────────────────────────────────────────
+function renderAll() {
+  if (!reportData) return;
+  const analyses = reportData.competitor_analyses || [];
+  const campaign = reportData.campaign_recommendations || {};
+
+  renderOverview(analyses, campaign);
+  renderCompetitors(analyses);
+  renderSignals(analyses);
+  renderCampaign(campaign);
+  renderCopy(campaign);
+  renderBattleCards(campaign);
+  renderQuery();
+  renderDiff(reportData.diff_analysis);
+}
+
+// ─── Overview ─────────────────────────────────────────────────────────────────
+function renderOverview(analyses, campaign) {
+  document.getElementById('reportMeta').textContent = `Run: ${reportData.run_id} · Generated: ${formatDate(reportData.generated_at)} · ${analyses.length} competitors`;
+  
+  const allSignals = analyses.flatMap(a => a.signals || []);
+  const highThreats = analyses.filter(a => a.keenfox_opportunity?.threat_level === 'High').length;
+  const allGaps = analyses.flatMap(a => a.keenfox_opportunity?.exploitable_gaps || []);
+
+  document.getElementById('stat-competitors').textContent = analyses.length;
+  document.getElementById('stat-threats').textContent = highThreats;
+  document.getElementById('stat-signals').textContent = allSignals.length;
+  document.getElementById('stat-gaps').textContent = allGaps.length;
+
+  // Threat matrix
+  const matrix = analyses.map(a => {
+    const tl = a.keenfox_opportunity?.threat_level || 'Unknown';
+    const sent = a.customer_sentiment?.overall_sentiment || 'Unknown';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-weight:600;font-size:13px">${a.competitor}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${a.messaging_analysis?.primary_positioning?.slice(0,50) || ''}...</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="threat-badge threat-${tl}">${tl}</span>
+        <span class="sentiment-${sent}" style="font-size:12px">${sentIcon(sent)}</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('threatMatrix').innerHTML = matrix || '<div style="color:var(--text-muted);font-size:13px">No data</div>';
+
+  // Top gaps
+  const topGaps = allGaps.slice(0, 5);
+  const gapsHtml = topGaps.map(g => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;display:flex;gap:8px;align-items:flex-start">
+    <span style="color:var(--fox);margin-top:2px">◆</span>
+    <span>${g}</span>
+  </div>`).join('');
+  document.getElementById('topGaps').innerHTML = gapsHtml || '<div style="color:var(--text-muted);font-size:13px">No gaps identified</div>';
+}
+
+// ─── Competitors ──────────────────────────────────────────────────────────────
+function renderCompetitors(analyses) {
+  const html = analyses.map(a => {
+    const tl = a.keenfox_opportunity?.threat_level || 'Unknown';
+    const loves = (a.customer_sentiment?.top_loves || []).slice(0, 2);
+    const complaints = (a.customer_sentiment?.top_complaints || []).slice(0, 2);
+    const positioning = a.messaging_analysis?.primary_positioning || 'Unknown';
+    const price = a.pricing_intelligence?.price_range || 'Unknown';
+    const ai = a.product_intelligence?.ai_investment_level || 'Unknown';
+    const sent = a.customer_sentiment?.overall_sentiment || 'Unknown';
+    const conf = a.analysis_confidence || 'Unknown';
+
+    return `<div class="comp-card">
+      <div class="comp-header">
+        <div>
+          <div class="comp-name">${a.competitor}</div>
+          <div class="comp-category">${a.messaging_analysis?.icp_targeting || ''}</div>
+        </div>
+        <span class="threat-badge threat-${tl}">${tl} THREAT</span>
+      </div>
+      <div class="comp-row"><span class="comp-row-label">Positioning</span><span class="comp-row-value">${positioning.slice(0,60)}${positioning.length>60?'...':''}</span></div>
+      <div class="comp-row"><span class="comp-row-label">Pricing</span><span class="comp-row-value">${price}</span></div>
+      <div class="comp-row"><span class="comp-row-label">AI Investment</span><span class="comp-row-value">${ai}</span></div>
+      <div class="comp-row"><span class="comp-row-label">Sentiment</span><span class="comp-row-value sentiment-${sent}">${sent}</span></div>
+      <div class="comp-row"><span class="comp-row-label">Confidence</span><span class="comp-row-value">${conf}</span></div>
+      ${loves.length ? `<div style="margin-top:12px"><div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:6px">✓ USERS LOVE</div>${loves.map(l=>`<div style="font-size:12px;color:var(--text-muted);margin-bottom:3px">· ${l.slice(0,80)}</div>`).join('')}</div>` : ''}
+      ${complaints.length ? `<div style="margin-top:10px"><div style="font-size:11px;color:var(--red);font-weight:600;margin-bottom:6px">✗ COMPLAINTS</div>${complaints.map(c=>`<div style="font-size:12px;color:var(--text-muted);margin-bottom:3px">· ${c.slice(0,80)}</div>`).join('')}</div>` : ''}
+      ${(a.keenfox_opportunity?.exploitable_gaps||[]).length ? `<div style="margin-top:10px"><div style="font-size:11px;color:var(--fox);font-weight:600;margin-bottom:6px">◆ GAPS FOR KEENFOX</div>${(a.keenfox_opportunity.exploitable_gaps||[]).slice(0,2).map(g=>`<div style="font-size:12px;color:var(--text-muted);margin-bottom:3px">· ${g.slice(0,80)}</div>`).join('')}</div>` : ''}
+    </div>`;
+  }).join('');
+  document.getElementById('competitorGrid').innerHTML = html || emptyState('No competitor data', 'Run the pipeline first');
+}
+
+// ─── Signals ──────────────────────────────────────────────────────────────────
+let activeFilter = 'all';
+function renderSignals(analyses) {
+  const allSignals = analyses.flatMap(a => (a.signals || []).map(s => ({...s, _competitor: a.competitor})));
+  const types = [...new Set(allSignals.map(s => s.type).filter(Boolean))];
+  
+  const filtersHtml = ['all', ...types].map(t => 
+    `<div class="suggestion ${activeFilter===t?'':''}" onclick="filterSignals('${t}')" id="filter-${t}" style="${activeFilter===t?'border-color:var(--fox);color:var(--fox)':''}">${t==='all'?'All Signals':t.replace(/_/g,' ')}</div>`
+  ).join('');
+  document.getElementById('signalFilters').innerHTML = filtersHtml;
+  
+  renderSignalList(allSignals, activeFilter);
+}
+
+function filterSignals(type) {
+  activeFilter = type;
+  if (!reportData) return;
+  const analyses = reportData.competitor_analyses || [];
+  const allSignals = analyses.flatMap(a => (a.signals || []).map(s => ({...s, _competitor: a.competitor})));
+  renderSignalList(allSignals, type);
+  document.querySelectorAll('#signalFilters .suggestion').forEach(el => {
+    const isActive = el.id === `filter-${type}`;
+    el.style.borderColor = isActive ? 'var(--fox)' : '';
+    el.style.color = isActive ? 'var(--fox)' : '';
+  });
+}
+
+function renderSignalList(signals, filter) {
+  const filtered = filter === 'all' ? signals : signals.filter(s => s.type === filter);
+  const html = filtered.map(s => `<div class="signal-item">
+    <div class="signal-type">${(s.type||'SIGNAL').replace(/_/g,' ')} · ${s._competitor}</div>
+    <div class="signal-title">${s.title || 'Untitled Signal'}</div>
+    <div class="signal-detail">${s.detail || ''}</div>
+    <div class="signal-meta">
+      <span class="signal-tag conf-${s.confidence}">${s.confidence || 'unknown'} confidence</span>
+      <span class="signal-tag">${s.source || 'unknown source'}</span>
+    </div>
+  </div>`).join('');
+  document.getElementById('signalsList').innerHTML = html || emptyState('No signals', 'Run the pipeline to detect signals');
+}
+
+// ─── Campaign ─────────────────────────────────────────────────────────────────
+function renderCampaign(campaign) {
+  const gtm = campaign.gtm_refinements || [];
+  const channels = campaign.channel_strategy || {};
+  
+  let html = `<div class="card" style="margin-bottom:24px">
+    <div class="card-title">Positioning Shift</div>
+    <div style="font-size:14px;line-height:1.7;color:var(--text);padding:8px;background:rgba(255,107,53,0.06);border-radius:8px;border-left:3px solid var(--fox)">
+      ${campaign.messaging_positioning?.recommended_positioning_shift || 'No recommendation available'}
+    </div>
+  </div>`;
+
+  html += `<div style="font-family:var(--display);font-size:18px;font-weight:700;margin-bottom:16px">GTM Priorities</div>`;
+  html += gtm.map(r => `<div class="rec-card">
+    <div class="rec-priority">PRIORITY ${r.priority || '—'} · ${r.timeline || ''}</div>
+    <div class="rec-title">${r.recommendation || 'Recommendation'}</div>
+    <div class="rec-body">${r.rationale || ''}</div>
+    <div class="rec-row"><strong>Execution:</strong> ${r.execution || ''}</div>
+    <div class="rec-row" style="margin-top:6px"><strong>Expected Impact:</strong> ${r.expected_impact || ''}</div>
+    ${r.competitors_this_addresses?.length ? `<div class="rec-row" style="margin-top:6px"><strong>Addresses:</strong> ${r.competitors_this_addresses.join(', ')}</div>` : ''}
+  </div>`).join('');
+
+  html += `<div style="font-family:var(--display);font-size:18px;font-weight:700;margin-top:32px;margin-bottom:16px">Channel Strategy</div>`;
+  if (channels.double_down?.length) {
+    html += `<div style="margin-bottom:16px"><div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:8px">▲ DOUBLE DOWN</div>${channels.double_down.map(c=>`<div class="card" style="margin-bottom:8px"><div style="font-weight:600;font-size:14px;margin-bottom:6px">${c.channel}</div><div style="font-size:13px;color:var(--text-muted)">${c.rationale}</div></div>`).join('')}</div>`;
+  }
+  if (channels.pull_back?.length) {
+    html += `<div style="margin-bottom:16px"><div style="font-size:12px;color:var(--red);font-weight:600;margin-bottom:8px">▼ PULL BACK</div>${channels.pull_back.map(c=>`<div class="card" style="margin-bottom:8px"><div style="font-weight:600;font-size:14px;margin-bottom:6px">${c.channel}</div><div style="font-size:13px;color:var(--text-muted)">${c.rationale}</div></div>`).join('')}</div>`;
+  }
+
+  document.getElementById('gtmRecs').innerHTML = html || emptyState('No campaign recommendations', 'Run the pipeline');
+}
+
+// ─── Copy Suggestions ─────────────────────────────────────────────────────────
+function renderCopy(campaign) {
+  const copy = campaign.messaging_positioning?.copy_suggestions || {};
+  const labels = {
+    homepage_headline: 'Homepage Headline',
+    cold_email_subject: 'Cold Email Subject',
+    cold_email_opening: 'Cold Email Opening',
+    linkedin_ad_headline: 'LinkedIn Ad',
+    value_proposition_statement: 'Core Value Proposition',
+  };
+
+  const html = Object.entries(labels).map(([key, label]) => {
+    const item = copy[key];
+    if (!item) return '';
+    return `<div class="copy-card">
+      <div class="copy-label">${label}</div>
+      <div class="copy-text">${item.recommended || ''}</div>
+      <div class="copy-rationale">${item.rationale || ''}</div>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  document.getElementById('copySuggestions').innerHTML = html || emptyState('No copy suggestions', 'Run the pipeline to generate copy');
+}
+
+// ─── Battle Cards ─────────────────────────────────────────────────────────────
+function renderBattleCards(campaign) {
+  const cards = campaign.battle_cards || [];
+  const html = cards.map(b => `<div class="battle-card">
+    <div class="battle-vs">vs ${b.vs_competitor}</div>
+    <div class="battle-row"><div class="battle-row-label">Our Position</div><div class="battle-row-value">${b.our_position || ''}</div></div>
+    <div class="battle-row" style="margin-top:8px"><div class="battle-row-label">Their Weakness</div><div class="battle-row-value">${b.their_weakness || ''}</div></div>
+    <div class="battle-row" style="margin-top:8px"><div class="battle-row-label">Our Proof Point</div><div class="battle-row-value">${b.our_proof_point || ''}</div></div>
+    <div class="talk-track">"${b.talk_track || ''}"</div>
+  </div>`).join('');
+  document.getElementById('battleCardsGrid').innerHTML = html || emptyState('No battle cards', 'Run the pipeline');
+}
+
+// ─── Query ────────────────────────────────────────────────────────────────────
+function renderQuery() {
+  const html = SUGGESTED_QUERIES.map(q => `<div class="suggestion" onclick="setQuery('${q.replace(/'/g, "\\'")}')">${q}</div>`).join('');
+  document.getElementById('suggestedQueries').innerHTML = html;
+}
+
+function setQuery(q) {
+  document.getElementById('queryInput').value = q;
+  runQuery();
+}
+
+async function runQuery() {
+  const q = document.getElementById('queryInput').value.trim();
+  if (!q) return;
+  
+  const btn = document.getElementById('queryBtn');
+  btn.disabled = true;
+  btn.textContent = '...';
+  const resultEl = document.getElementById('queryResult');
+  resultEl.style.display = 'block';
+  resultEl.textContent = '⟳ Analyzing...';
+
+  try {
+    const res = await fetch('/api/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: q }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    resultEl.textContent = data.answer;
+  } catch (e) {
+    resultEl.textContent = `Error: ${e.message}`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Ask AI';
+  }
+}
+
+// ─── Diff ─────────────────────────────────────────────────────────────────────
+function renderDiff(diff) {
+  if (!diff) {
+    document.getElementById('diffContent').innerHTML = emptyState('No diff available', 'A diff is generated on the second and subsequent runs');
+    return;
+  }
+
+  const urgencyColor = { High: 'var(--red)', Medium: 'var(--yellow)', Low: 'var(--green)' }[diff.urgency] || 'var(--text-muted)';
+  
+  let html = `<div class="diff-card">
+    <div class="diff-title">⚡ ${diff.material_changes?.length || 0} Material Changes Detected</div>
+    <div style="font-size:13px;color:var(--text-muted)">Urgency: <span style="color:${urgencyColor};font-weight:600">${diff.urgency || 'Unknown'}</span></div>
+  </div>`;
+
+  (diff.material_changes || []).forEach(c => {
+    html += `<div class="signal-item" style="margin-bottom:12px">
+      <div class="signal-type">${c.change_type?.toUpperCase() || 'CHANGE'} · ${c.competitor}</div>
+      <div class="signal-title">${c.description}</div>
+      <div class="rec-row" style="margin-top:6px;font-size:13px"><strong>KeenFox Implication:</strong> ${c.keenfox_implication}</div>
+      <div class="signal-meta"><span class="signal-tag conf-${c.significance}">${c.significance} significance</span></div>
+    </div>`;
+  });
+
+  if (diff.recommendations_update) {
+    html += `<div class="card" style="margin-top:24px">
+      <div class="card-title">Strategy Update</div>
+      <div style="font-size:13px;line-height:1.7">${diff.recommendations_update}</div>
+    </div>`;
+  }
+
+  document.getElementById('diffContent').innerHTML = html;
+}
+
+// ─── Pipeline Trigger ─────────────────────────────────────────────────────────
+async function triggerRun() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = '⟳ Running...';
+  showLoading('Running competitive intelligence pipeline...');
+  setStatus('loading', 'Pipeline running...');
+
+  try {
+    const res = await fetch('/api/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    
+    if (data.status === 'started') {
+      showToast('Pipeline started! Reloading in 90s...', 'success');
+      // Poll for completion
+      let attempts = 0;
+      const poll = setInterval(async () => {
+        attempts++;
+        document.getElementById('loadingMsg').textContent = `Analyzing... (${attempts * 10}s elapsed)`;
+        const r = await loadLatestReport();
+        if (r || attempts > 18) {
+          clearInterval(poll);
+          hideLoading();
+          await loadReport();
+          btn.disabled = false;
+          btn.textContent = '⟳ Run Pipeline';
+        }
+      }, 10000);
+    }
+  } catch (e) {
+    hideLoading();
+    showToast(`Error: ${e.message}`, 'error');
+    btn.disabled = false;
+    btn.textContent = '⟳ Run Pipeline';
+  }
+}
+
+async function loadLatestReport() {
+  try {
+    const res = await fetch('/api/report/latest');
+    return res.ok ? await res.json() : null;
+  } catch { return null; }
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+function setStatus(type, text) {
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot' + (type === 'loading' ? ' loading' : '');
+  document.getElementById('statusText').textContent = text;
+}
+
+function showLoading(msg) {
+  document.getElementById('loadingMsg').textContent = msg;
+  document.getElementById('loadingOverlay').classList.add('visible');
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('visible');
+}
+
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast visible ${type}`;
+  setTimeout(() => t.classList.remove('visible'), 4000);
+}
+
+function sentIcon(sentiment) {
+  return { Positive: '✅', Mixed: '⚠️', Negative: '❌', Unknown: '—' }[sentiment] || '—';
+}
+
+function formatDate(iso) {
+  if (!iso) return 'Unknown';
+  try { return new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }); }
+  catch { return iso; }
+}
+
+function emptyState(title, sub) {
+  return `<div class="empty-state"><div class="empty-icon">🦊</div><div class="empty-title">${title}</div><div>${sub}</div></div>`;
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+loadReport();
+</script>
+</body>
+</html>
