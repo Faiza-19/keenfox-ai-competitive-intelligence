@@ -135,7 +135,7 @@ src/
 │
 ├── agents/
 │   ├── scraper.js    ← Web scraping (Axios + Cheerio)
-│   ├── analyzer.js   ← LLM analysis (Anthropic SDK)
+│   ├── analyzer.js   ← LLM analysis (Gemini SDK)
 │   └── reporter.js   ← Report generation (Markdown/JSON)
 │
 ├── prompts/
@@ -393,7 +393,7 @@ Level 4: Fatal (API key missing, no internet) → clear error message, exit
 
  Environment Validation
 
-The CLI validates `ANTHROPIC_API_KEY` presence before starting any work and exits with a clear message if missing — no partial work wasted.
+The CLI validates `GEMINI_API_KEY` presence before starting any work and exits with a clear message if missing — no partial work wasted.
 
 
 
